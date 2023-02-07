@@ -1,0 +1,263 @@
+Overlap add:
+
+clc;
+clear all;
+x = input('Enter elements of input array x[n] inside a square bracket:')
+len_x = length(x);
+h = input('Enter elements of impulse response h[n] inside a square bracket:') M = length(h);
+N = input('Enter the value of N:')
+ L=N-M+1; m=M+1;
+for a=1:L-1 h(m)=zeros(1) m=m+1;
+end temp=length(h)-(M-1); r=mod(len_x,temp); q=(len_x-r)/temp; y=0;
+i=1;
+for u=1:(q+r) y=y+temp; for v=1:temp
+if(i<=len_x&&i<=y) seg(u,v) = x(i);
+ elseif(i>len_x) seg(u,v) = zeros(1);
+end i=i+1;
+end end
+for u=1:(q+r)
+for v=temp+1:temp+(M-1) seg(u,v)=zeros(1);
+end
+end
+ disp('SEGMENTS:'); disp(seg);
+ 
+    for u=1:(q+r)
+result(u,:) = cconv(seg(u,:),h,length(h)); end
+disp('CONVOLUTION RESULT:');
+ disp(result); b=1;
+for f=1:(q+r)
+if(f==1)
+for t=1:temp
+final(b)=result(f,t); b=b+1;
+t=t+1;
+end
+for u=1:(M-1)
+final(b)=result(f,t)+result(f+1,u); t=t+1;
+ b=b+1; end
+elseif(f>1 && f<(q+r)) if(M<=(length(h)-(M-1)))
+for t=M:(length(h)-(M-1)) final(b)=result(f,t); b=b+1;
+t=t+1;
+end else
+t=M; end
+for u=1:(M-1) final(b)=result(f,t)+result(f+1,u); t=t+1;
+b=b+1;
+end elseif(f==(q+r))
+if(M<=(length(h)-(M-1)))
+ for t=temp:(length(h)) final(b)=result(f,t); t=t+1;
+b=b+1;
+end else
+for t=(temp+1):(length(h)) final(b)=result(f,t); t=t+1;
+b=b+1;
+end
+ end end
+ 
+    end
+disp('FINAL RESULT:OVERLAP ADD'); disp(final);
+
+
+Overlap save:
+
+clc;
+clear all;
+x=input('Enter 1st sequence X(n)= ');
+h=input('Enter 2nd sequence H(n)= ');
+L=input('Enter length of each block L = ');
+%plotting X(n)
+subplot (2,2,1);
+stem(x);
+stem(x,'blue');
+xlabel ('n---->');
+ylabel ('Amplitude---->');
+title('X(n)');
+%plotting H(n)
+subplot (2,2,2);
+stem(h);
+stem(h,'black');
+xlabel ('n---->');
+ylabel ('Amplitude---->');
+title(' H(n)');
+%code to perform Convolution using Overlap Save Method M=length(h);
+lx=length(x);
+r=rem(lx,L);
+x1=[x zeros(1,L-r)];
+nr=(length(x1))/L;
+h1=[h zeros(1,L-1)];
+for k=1:nr
+Ma(k,:)=x1(((k-1)*L+1):k*L); if k==1
+Ma1(k,:)=[zeros(1,M-1) Ma(k,:)]; else
+ 
+   Ma1(k,:)=[Ma(k-1,(L-M+2):L) Ma(k,:)]; end
+Ma2(k,:)=ifft(fft(Ma1(k,:)).*fft(h1)); end
+Ma3=Ma2(:,M:(L+M-1));
+y1=Ma3';
+y=y1(:);
+%representation of the Convoled Signal subplot (2,2,3:4);
+stem(y,'red');
+xlabel ('n---->');
+ylabel ('Amplitude ---->');
+title ('Convolved Signal');
+% Add title to the Overall Plot
+ha = axes ('Position',[0 0 1 1],'Xlim',[0 1],'Ylim',[0 1],'Box','off','Visible','off','Units','normalized', 'clipping' , 'off');
+text (0.5, 1,'\bf Convolution using Overlap Save Method ','HorizontalAlignment','center','VerticalAlignment', 'top');
+clear all;
+x=input('Enter 1st sequence X(n)= ');
+h=input('Enter 2nd sequence H(n)= ');
+L=input('Enter length of each block L = ');
+% Code to plot X(n)
+subplot (2,2,1);
+stem(x);
+stem(x,'blue');
+xlabel ('n---->');
+ylabel ('Amplitude ---->');
+title('X(n)');
+%code to plot H(n)
+subplot (2,2,2);
+stem(h);
+stem(h,'black');
+xlabel ('n---->');
+ylabel ('Amplitude ---->');
+title(' H(n)');
+%code to perform Convolution using Overlap Save Method
+M=length(h);
+lx=length(x);
+r=rem(lx,L);
+x1=[x zeros(1,L-r)];
+nr=(length(x1))/L;
+h1=[h zeros(1,L-1)];
+for k=1:nr
+Ma(k,:)=x1(((k-1)*L+1):k*L); if k==1
+Ma1(k,:)=[zeros(1,M-1) Ma(k,:)]; else
+Ma1(k,:)=[Ma(k-1,(L-M+2):L) Ma(k,:)];
+ 
+   end Ma2(k,:)=ifft(fft(Ma1(k,:)).*fft(h1));
+end
+Ma3=Ma2(:,M:(L+M-1));
+y1=Ma3';
+y=y1(:);
+%representation of the convolved signal
+subplot (2,2,3:4);
+stem(y,'red');
+xlabel ('n---->');
+ylabel ('Amplitude ---->');
+title ('Convolved Signal');
+%title to the overall plot
+ha = axes ('Position',[0 0 1 1],'Xlim',[0 1],'Ylim',[0 1],'Box','off','Visible','off','Units','normalized', 'clipping' , 'off');
+text (0.5, 1,'\bf Convolution using Overlap Save Method ','HorizontalAlignment','center','VerticalAlignment', 'top')
+
+DIF::
+
+clc;
+clear all;
+close all;
+xn=input('Enter a sequence:');
+p=length(xn);
+N=8;
+x=xn;
+lev=log2(N);
+tw=exp(-1i*2*pi*(0:N/2-1)/N);
+for level=lev:-1:1;
+    L=2^level;
+    twlvl=tw(1:N/L:N/2);
+    for k=0:L:N-L;
+        for n=0:L/2-1;
+            A=x(n+k+1);
+end
+end
+B=x(n+k+(L/2)+1);
+x(n+k+1)=A+B; x(n+k+(L/2)+1)=(A-B)*twlvl(n+1); end
+XK=bitrevorder(x);
+l=0:N-1;
+subplot(3,1,1);
+stem(l,abs(xn));
+title('INPUT SEQUENCE');
+xlabel('n');
+ylabel('x[n]');
+grid on;
+subplot(3,1,2);
+stem(l,XK);
+title('DIF-DFT');
+xlabel('k');ylabel('X[k]');
+grid on;
+x1=conj(XK);
+levels=log2(N);
+tw=exp(-1i*2*pi*(0:N/2-1)/N);
+for level=levels:-1:1;
+    L=2^level;
+  twlvl=tw(1:N/L:N/2);
+    for k=0:L:N-L;
+        for n=0:L/2-1;
+            A=x1(n+k+1);
+            B=x1(n+k+(L/2)+1);
+            x1(n+k+1)=A+B;
+            x1(n+k+(L/2)+1)=(A-B)*twlvl(n+1);
+end end
+end
+x=bitrevorder(x1);
+xk=conj(x)/N
+ansift=ifft(XK)
+subplot(3,1,3),stem(l,abs(xk));
+title('DIF-IDFT');
+ 
+   xlabel('n');
+ylabel('x[n]');
+grid on;
+
+DIT:
+
+clear all;
+clc;
+x=input('Enter the 8 point sequence'); N=8;
+%DFT USING DIT-FFT
+s=log2(N);
+xr=bitrevorder(x)
+W=exp(-j*2*pi*(0:N/2-1)/N);
+for s1=1:s
+    L=2^s1;
+    W1=W(1:N/L:N/2);
+    for k=0:L:N-L
+        for n=0:L/2-1
+            A=xr(n+k+1);
+            B=xr(n+k+(L/2)+1)*W1(n+1);
+            xr(n+k+1)=A+B;
+            xr(n+k+(L/2)+1)=A-B;
+end end
+end
+%IDFT USING DIT-FFT
+xc=conj(xr);
+x1=bitrevorder(xc);
+for s1=1:s
+    L=2^s1;
+    W1=W(1:N/L:N/2);
+    for k=0:L:N-L
+        for n=0:L/2-1
+            A=x1(n+k+1);
+            B=x1(n+k+(L/2)+1)*W1(n+1);
+            x1(n+k+1)=A+B;
+            x1(n+k+(L/2)+1)=A-B;
+end end
+end
+X=conj(x1)/N;
+i=0:N-1;
+figure (1);
+subplot(3,1,1);
+stem(i,x);
+xlabel('n');
+ylabel('x(n)');
+grid on;
+title('INPUT SEQUENCE');
+subplot(3,1,2);
+stem(i,abs(xr));
+xlabel('k');
+ylabel('X(k)');
+title('DIT-DFT');
+ 
+   grid on;
+subplot(3,1,3);
+stem(i,X);
+title('DIT-IDFT');
+xlabel('n');
+ylabel('x(n)');
+grid on;;
+
+
+
